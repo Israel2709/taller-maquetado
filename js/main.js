@@ -49,45 +49,20 @@ const showElementById = elementId => {
   showElementById('test-card-2')
 })*/
 
-let postCollection = {
-  post1: {
-    cover: 'https://picsum.photos/id/221/200/100',
-    author: 'Israel Salinas',
-    date: '07 Dic 2021',
-    content:
-      'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Delectus quisquam blanditiis voluptatibus non illo? Autem     aliquid provident rem accusamus assumenda.',
-    title: 'Título número 1'
-  },
-  post2: {
-    cover: 'https://picsum.photos/id/222/200/100',
-    author: 'Charles Silva',
-    date: '08 Dic 2021',
-    content:
-      'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Delectus quisquam blanditiis voluptatibus non illo? Autem     aliquid provident rem accusamus assumenda.',
-    title: 'Título número 2'
-  },
-  post3: {
-    cover: 'https://picsum.photos/id/22/200/100',
-    author: 'David Moranchel',
-    date: '09 Dic 2021',
-    content:
-      'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Delectus quisquam blanditiis voluptatibus non illo? Autem     aliquid provident rem accusamus assumenda.',
-    title: 'Título número 3'
-  }
-}
-
 //let container = document.getElementById("post-wrapper")
 
-const printAllPost = () => {
+const printAllPost = ( dataToPrint ) => {
   let container = document.getElementById('post-wrapper')
+  container.innerHTML = ""
 
-  Object.keys(postCollection).forEach(key => {
+  Object.keys(dataToPrint).forEach(key => {
     console.log(key)
-    console.log(postCollection[key])
-    let postData = postCollection[key]
+    console.log(dataToPrint[key])
+    let postData = dataToPrint[key]
     let { cover, author, date, content, title } = postData
+    
     let currentContent = container.innerHTML
-    let cardHTML = `<div class="card mb-4">
+    let cardHTML = `<div class="post-card card mb-4">
                 <img
                   src=${cover}
                   class="card-img-top"
@@ -127,4 +102,38 @@ const printAllPost = () => {
   })
 }
 
-printAllPost()
+
+
+const getPostsFromDb = () => {
+    fetch("https://taller-maquetado-default-rtdb.firebaseio.com/posts.json").then( response => {
+        console.log( response )
+        response.json().then( json => {
+            console.log( json )
+
+            printAllPost( json )
+        })
+    })
+}
+
+const getFormData = () => {
+    let inputs = document.querySelectorAll("#post-form input")
+    let postObject = {}
+    inputs.forEach( input => {
+        console.log( input.name )
+        console.log( input.value )
+        postObject[input.name] = input.value
+    })
+    console.log( postObject )
+    fetch("https://taller-maquetado-default-rtdb.firebaseio.com/posts.json",{
+        method:"POST",
+        body:JSON.stringify(postObject)
+    }).then( response => {
+        response.json().then( json => {
+            getPostsFromDb()
+        })
+    })
+}
+
+document.getElementById("save-post").addEventListener("click", getFormData )
+
+getPostsFromDb()
